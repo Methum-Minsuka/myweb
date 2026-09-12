@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio — C# &amp; SQL Developer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A1628;
+    --bg-alt:#0E1F38;
+    --surface:#11223D;
+    --surface-2:#152A4B;
+    --border:#22385C;
+    --gold:#D4A24C;
+    --gold-soft:rgba(212,162,76,.14);
+    --cyan:#5FD3C4;
+    --cyan-soft:rgba(95,211,196,.12);
+    --text:#EDEFF4;
+    --muted:#93A2BC;
+    --faint:#5B6C87;
+    --mono:'JetBrains Mono', monospace;
+    --display:'Space Grotesk', sans-serif;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--display);
+    line-height:1.6;
+    overflow-x:hidden;
+    background-image:
+      linear-gradient(var(--bg-alt) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bg-alt) 1px, transparent 1px);
+    background-size:42px 42px;
+    background-position:-1px -1px;
+  }
+  a{color:inherit; text-decoration:none;}
+  section{position:relative;}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 32px;}
+
+  ::selection{background:var(--gold-soft); color:var(--gold);}
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    background:rgba(10,22,40,.72);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-inner{
+    max-width:var(--maxw); margin:0 auto; padding:0 32px;
+    height:64px; display:flex; align-items:center; justify-content:space-between;
+  }
+  .logo{
+    font-family:var(--mono); font-size:15px; letter-spacing:.02em; color:var(--text);
+    display:flex; align-items:center; gap:8px;
+  }
+  .logo .dot{width:8px; height:8px; border-radius:50%; background:var(--cyan); display:inline-block; box-shadow:0 0 8px var(--cyan);}
+  .nav-links{display:flex; gap:2px; list-style:none; align-items:center;}
+  .nav-links a{
+    font-family:var(--mono); font-size:13.5px; color:var(--muted);
+    padding:10px 16px; border-radius:5px; transition:color .2s ease, background .2s ease;
+    position:relative;
+  }
+  .nav-links a:hover{color:var(--text); background:var(--surface);}
+  .nav-links a.active{color:var(--gold);}
+  .nav-links a.active::after{
+    content:''; position:absolute; left:16px; right:16px; bottom:4px; height:1px; background:var(--gold);
+  }
+  .nav-toggle{display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:8px;}
+  .nav-toggle span{width:22px; height:2px; background:var(--text);}
+
+  /* ---------- HERO ---------- */
+  #index{
+    min-height:100vh; display:flex; align-items:center;
+    padding-top:64px; position:relative; overflow:hidden;
+  }
+  #hero-canvas{
+    position:absolute; inset:0; width:100%; height:100%; z-index:0;
+    opacity:0; transition:opacity 1.8s ease;
+  }
+  #hero-canvas.ready{opacity:1;}
+  .hero-vignette{
+    position:absolute; inset:0; z-index:1; pointer-events:none;
+    background:
+      radial-gradient(ellipse at 30% 45%, transparent 0%, transparent 35%, var(--bg) 92%),
+      linear-gradient(180deg, transparent 70%, var(--bg) 100%);
+  }
+  .hero-content{position:relative; z-index:2; max-width:640px;}
+  .hero-eyebrow{
+    font-family:var(--mono); font-size:13px; color:var(--cyan); margin-bottom:22px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .hero-eyebrow .line{width:28px; height:1px; background:var(--cyan);}
+  .hero-content h1{
+    font-size:clamp(34px, 5.2vw, 58px); font-weight:600; line-height:1.15;
+    letter-spacing:-.01em; color:var(--text); margin-bottom:22px;
+  }
+  .hero-content h1 em{
+    font-style:normal; color:var(--gold);
+  }
+  .hero-sub{font-size:17px; color:var(--muted); max-width:520px; margin-bottom:30px;}
+  .hero-tags{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:38px;}
+  .chip{
+    font-family:var(--mono); font-size:12.5px; color:var(--muted);
+    border:1px solid var(--border); padding:6px 12px; border-radius:20px;
+    background:rgba(17,34,61,.7);
+    backdrop-filter:blur(4px);
+  }
+  .hero-actions{display:flex; gap:14px; flex-wrap:wrap;}
+  .btn{
+    font-family:var(--display); font-weight:600; font-size:14.5px;
+    padding:13px 26px; border-radius:6px; display:inline-block; cursor:pointer;
+    border:1px solid transparent; transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+  }
+  .btn-primary{background:var(--gold); color:#1A1206;}
+  .btn-primary:hover{transform:translateY(-2px); box-shadow:0 8px 22px -6px rgba(212,162,76,.55);}
+  .btn-ghost{border-color:var(--border); color:var(--text); background:rgba(17,34,61,.5); backdrop-filter:blur(4px);}
+  .btn-ghost:hover{border-color:var(--cyan); color:var(--cyan); transform:translateY(-2px);}
+
+  /* ---------- SECTION HEADERS ---------- */
+  .section-pad{padding:120px 0;}
+  .sec-head{margin-bottom:56px; max-width:640px;}
+  .sec-head .tag-line{
+    font-family:var(--mono); font-size:13px; color:var(--cyan); margin-bottom:14px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .sec-head .tag-line .line{width:28px; height:1px; background:var(--cyan);}
+  .sec-head h2{font-size:clamp(28px,3.6vw,40px); font-weight:600; margin-bottom:14px;}
+  .sec-head p{color:var(--muted); font-size:16px; max-width:520px;}
+
+  /* ---------- PROJECTS ---------- */
+  .project-grid{
+    display:grid; grid-template-columns:repeat(2, 1fr); gap:22px;
+    perspective:1400px;
+  }
+  .project-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:8px;
+    overflow:hidden; transition:border-color .25s ease, transform .12s ease-out, box-shadow .25s ease;
+    transform-style:preserve-3d;
+    will-change:transform;
+  }
+  .project-card:hover{border-color:var(--cyan); box-shadow:0 22px 40px -18px rgba(0,0,0,.55);}
+  .card-head{
+    background:var(--bg-alt); padding:12px 18px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .card-head span{font-family:var(--mono); font-size:12.5px; color:var(--cyan);}
+  .card-head .badge{
+    font-family:var(--mono); font-size:11px; color:var(--faint);
+    border:1px solid var(--border); padding:2px 8px; border-radius:10px;
+  }
+  .card-body{padding:22px 18px 24px;}
+  .card-body h3{font-size:19px; font-weight:600; margin-bottom:10px;}
+  .card-body p{color:var(--muted); font-size:14.5px; margin-bottom:18px;}
+  .tag-row{display:flex; flex-wrap:wrap; gap:7px; margin-bottom:20px;}
+  .tag-row span{
+    font-family:var(--mono); font-size:11.5px; color:var(--gold);
+    background:var(--gold-soft); padding:4px 9px; border-radius:4px;
+  }
+  .card-links{display:flex; gap:18px;}
+  .card-links a{
+    font-family:var(--mono); font-size:12.5px; color:var(--muted);
+    display:flex; align-items:center; gap:6px; transition:color .2s ease;
+  }
+  .card-links a:hover{color:var(--cyan);}
+  .card-links svg{width:14px; height:14px;}
+
+  /* ---------- ABOUT ---------- */
+  .about-grid{display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:start;}
+  .about-copy p{color:var(--muted); font-size:15.5px; margin-bottom:16px; max-width:480px;}
+  .about-copy .highlight{color:var(--text);}
+  .facts{display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:30px;}
+  .fact b{display:block; font-family:var(--mono); font-size:22px; color:var(--gold); margin-bottom:4px;}
+  .fact span{font-size:13px; color:var(--faint);}
+
+  .schema-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:8px; overflow:hidden;
+    transform-style:preserve-3d; will-change:transform; transition:transform .12s ease-out, box-shadow .25s ease;
+  }
+  .schema-card:hover{box-shadow:0 22px 40px -18px rgba(0,0,0,.55);}
+  .schema-card .card-head span{color:var(--gold);}
+  .schema-body{padding:20px 20px 22px;}
+  .schema-comment{
+    font-family:var(--mono); font-size:12.5px; color:var(--faint); margin-bottom:18px;
+  }
+  .skill-row{display:flex; align-items:center; gap:12px; margin-bottom:14px;}
+  .skill-row .name{
+    font-family:var(--mono); font-size:12.5px; color:var(--text); width:150px; flex-shrink:0;
+  }
+  .skill-bar{flex:1; height:6px; background:var(--bg-alt); border-radius:3px; overflow:hidden; border:1px solid var(--border);}
+  .skill-fill{height:100%; background:linear-gradient(90deg, var(--cyan), var(--gold)); width:0%; transition:width 1.1s cubic-bezier(.2,.7,.3,1);}
+  .skill-row .pct{font-family:var(--mono); font-size:12px; color:var(--faint); width:36px; text-align:right;}
+
+  /* ---------- CONTACT ---------- */
+  .contact-grid{display:grid; grid-template-columns:1fr 1fr; gap:60px; perspective:1400px;}
+  .contact-info p{color:var(--muted); font-size:15.5px; margin-bottom:26px; max-width:440px;}
+  .info-list{list-style:none; display:flex; flex-direction:column; gap:16px; margin-bottom:30px;}
+  .info-list li{display:flex; align-items:center; gap:12px; font-size:14.5px;}
+  .info-list svg{width:18px; height:18px; color:var(--cyan); flex-shrink:0;}
+  .info-list b{font-family:var(--mono); font-weight:400; color:var(--text);}
+  .social-row{display:flex; gap:12px;}
+  .social-row a{
+    width:40px; height:40px; border:1px solid var(--border); border-radius:6px;
+    display:flex; align-items:center; justify-content:center; transition:border-color .2s ease, color .2s ease;
+    color:var(--muted);
+  }
+  .social-row a:hover{border-color:var(--cyan); color:var(--cyan);}
+  .social-row svg{width:18px; height:18px;}
+
+  .console{
+    background:var(--surface); border:1px solid var(--border); border-radius:8px; overflow:hidden;
+    transform-style:preserve-3d; will-change:transform; transition:transform .12s ease-out, box-shadow .25s ease;
+  }
+  .console:hover{box-shadow:0 22px 40px -18px rgba(0,0,0,.55);}
+  .console .card-head span{color:var(--cyan);}
+  .console-body{padding:22px 20px;}
+  .field{margin-bottom:16px;}
+  .field label{
+    font-family:var(--mono); font-size:11.5px; color:var(--faint); display:block; margin-bottom:6px;
+  }
+  .field input, .field textarea{
+    width:100%; background:var(--bg-alt); border:1px solid var(--border); border-radius:5px;
+    padding:11px 13px; color:var(--text); font-family:var(--display); font-size:14px;
+    transition:border-color .2s ease;
+  }
+  .field input:focus, .field textarea:focus{outline:none; border-color:var(--cyan);}
+  .field textarea{resize:vertical; min-height:100px;}
+  .console-body .btn{width:100%; text-align:center; margin-top:4px;}
+  .form-note{font-family:var(--mono); font-size:11.5px; color:var(--faint); margin-top:12px; text-align:center;}
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    border-top:1px solid var(--border); padding:30px 0; margin-top:20px;
+  }
+  .footer-inner{
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;
+  }
+  footer p{font-family:var(--mono); font-size:12.5px; color:var(--faint);}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:860px){
+    .project-grid{grid-template-columns:1fr;}
+    .about-grid, .contact-grid{grid-template-columns:1fr; gap:36px;}
+    .nav-links{
+      position:fixed; top:64px; left:0; right:0; background:var(--bg);
+      flex-direction:column; align-items:stretch; border-bottom:1px solid var(--border);
+      padding:8px 20px 18px; display:none; gap:0;
+    }
+    .nav-links.open{display:flex;}
+    .nav-links a{padding:13px 4px; border-bottom:1px solid var(--border);}
+    .nav-toggle{display:flex;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    #hero-canvas{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="#index" class="logo"><span class="dot"></span>dev.schema</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#index" data-nav="index">Index</a></li>
+      <li><a href="#projects" data-nav="projects">Projects</a></li>
+      <li><a href="#about" data-nav="about">About</a></li>
+      <li><a href="#contact" data-nav="contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- =============== INDEX / HERO =============== -->
+<section id="index">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-vignette"></div>
+  <div class="wrap">
+    <div class="hero-content">
+      <div class="hero-eyebrow"><span class="line"></span>SOFTWARE DEVELOPER — C# / .NET / SQL</div>
+      <h1>The logic lives in the code.<br>The data lives in the <em>database</em>.<br>I build the bridge between them.</h1>
+      <p class="hero-sub">
+        A software developer building reliable, scalable backend systems with C# and SQL Server.
+        I believe clean code and a properly designed database schema are the real foundation of any good system.
+      </p>
+      <div class="hero-tags">
+        <span class="chip">C#</span>
+        <span class="chip">ASP.NET Core</span>
+        <span class="chip">SQL Server</span>
+        <span class="chip">Entity Framework</span>
+        <span class="chip">REST API</span>
+        <span class="chip">T-SQL</span>
+      </div>
+      <div class="hero-actions">
+        <a href="#projects" class="btn btn-primary">View Projects</a>
+        <a href="#contact" class="btn btn-ghost">Get in Touch</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== PROJECTS =============== -->
+<section id="projects" class="section-pad">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="tag-line"><span class="line"></span>SELECT * FROM projects</div>
+      <h2>Projects</h2>
+      <p>A selection of systems built around C# and SQL Server, each one solving a different real-world problem.</p>
+    </div>
+
+    <div class="project-grid">
+
+      <div class="project-card tilt-card">
+        <div class="card-head"><span>TBL_inventory_system</span><span class="badge">Desktop App</span></div>
+        <div class="card-body">
+          <h3>Inventory Management System</h3>
+          <p>A Windows Forms application for tracking stock, purchases and sales for a small retail store. Includes low-stock alerts and monthly reporting.</p>
+          <div class="tag-row"><span>C#</span><span>WinForms</span><span>SQL Server</span><span>Crystal Reports</span></div>
+          <div class="card-links">
+            <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>GitHub</a>
+            <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>Live Demo</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card tilt-card">
+        <div class="card-head"><span>TBL_hospital_system</span><span class="badge">Web App</span></div>
+        <div class="card-body">
+          <h3>Hospital Management System</h3>
+          <p>An ASP.NET Core MVC application handling patient registration, doctor appointments and medical history, with role-based access for Admin, Doctor and Receptionist.</p>
+          <div class="tag-row"><span>ASP.NET Core</span><span>MVC</span><span>SQL Server</span><span>Entity Framework</span></div>
+          <div class="card-links">
+            <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>GitHub</a>
+            <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>Live Demo</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card tilt-card">
+        <div class="card-head"><span>TBL_ecommerce_api</span><span class="badge">Web API</span></div>
+        <div class="card-body">
+          <h3>E-Commerce Backend API</h3>
+          <p>A RESTful API for products, cart, orders and payments. Supports JWT authentication, pagination and filtering, with full Swagger documentation.</p>
+          <div class="tag-row"><span>ASP.NET Core Web API</span><span>SQL Server</span><span>JWT</span><span>Swagger</span></div>
+          <div class="card-links">
+            <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>GitHub</a>
+            <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>Live Demo</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card tilt-card">
+        <div class="card-head"><span>TBL_payroll_system</span><span class="badge">Desktop App</span></div>
+        <div class="card-body">
+          <h3>Employee Payroll &amp; HR System</h3>
+          <p>A C# WPF application automating attendance, leave requests and monthly salary calculations, with EPF/ETF rules built in for Sri Lankan payroll.</p>
+          <div class="tag-row"><span>C#</span><span>WPF</span><span>SQL Server</span><span>Stored Procedures</span></div>
+          <div class="card-links">
+            <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>GitHub</a>
+            <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>Live Demo</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card tilt-card">
+        <div class="card-head"><span>TBL_library_system</span><span class="badge">Web App</span></div>
+        <div class="card-body">
+          <h3>Library Management System</h3>
+          <p>A system for book catalog, member registration and borrow/return tracking, with a SQL Server trigger that auto-calculates overdue fines.</p>
+          <div class="tag-row"><span>ASP.NET MVC</span><span>SQL Server</span><span>LINQ</span><span>Triggers</span></div>
+          <div class="card-links">
+            <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>GitHub</a>
+            <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>Live Demo</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card tilt-card">
+        <div class="card-head"><span>TBL_banking_system</span><span class="badge">Console App</span></div>
+        <div class="card-body">
+          <h3>Banking / ATM Simulation System</h3>
+          <p>A console-based application simulating account creation, deposits, withdrawals and fund transfers, using database transactions to keep every record consistent.</p>
+          <div class="tag-row"><span>C#</span><span>ADO.NET</span><span>SQL Server</span><span>Transactions</span></div>
+          <div class="card-links">
+            <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>GitHub</a>
+            <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>Live Demo</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- =============== ABOUT =============== -->
+<section id="about" class="section-pad">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="tag-line"><span class="line"></span>DESCRIBE developer</div>
+      <h2>About</h2>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-copy">
+        <p>
+          I'm a software developer who builds backend systems on <span class="highlight">C# and SQL Server</span>.
+          I studied Computer Science, where I first went deep into object-oriented programming and relational
+          databases — and that's still where my instincts come from.
+        </p>
+        <p>
+          When I design a system's architecture, I pay the most attention to two things: keeping business logic
+          cleanly organized, and properly normalizing the database schema. I've seen how a poor database design
+          turns into a performance problem months later — so I'd rather solve it at the design stage.
+        </p>
+        <p>
+          These days I work on enterprise-level applications, REST APIs and reporting systems, and I keep
+          experimenting with new tools through freelance and personal projects on the side.
+        </p>
+        <div class="facts">
+          <div class="fact"><b>15+</b><span>Projects shipped</span></div>
+          <div class="fact"><b>3+</b><span>Years with C# / .NET</span></div>
+          <div class="fact"><b>10+</b><span>Database schemas designed</span></div>
+          <div class="fact"><b>100%</b><span>Clean code commitment</span></div>
+        </div>
+      </div>
+
+      <div class="schema-card tilt-card">
+        <div class="card-head"><span>developer_skills.sql</span><span class="badge">Table</span></div>
+        <div class="schema-body">
+          <div class="schema-comment">-- SELECT * FROM skills ORDER BY proficiency DESC;</div>
+
+          <div class="skill-row"><span class="name">SQL Server / T-SQL</span><div class="skill-bar"><div class="skill-fill" data-pct="92"></div></div><span class="pct">92%</span></div>
+          <div class="skill-row"><span class="name">C#</span><div class="skill-bar"><div class="skill-fill" data-pct="90"></div></div><span class="pct">90%</span></div>
+          <div class="skill-row"><span class="name">ASP.NET Core</span><div class="skill-bar"><div class="skill-fill" data-pct="85"></div></div><span class="pct">85%</span></div>
+          <div class="skill-row"><span class="name">Entity Framework</span><div class="skill-bar"><div class="skill-fill" data-pct="82"></div></div><span class="pct">82%</span></div>
+          <div class="skill-row"><span class="name">LINQ</span><div class="skill-bar"><div class="skill-fill" data-pct="80"></div></div><span class="pct">80%</span></div>
+          <div class="skill-row"><span class="name">WinForms / WPF</span><div class="skill-bar"><div class="skill-fill" data-pct="75"></div></div><span class="pct">75%</span></div>
+          <div class="skill-row"><span class="name">Git &amp; GitHub</span><div class="skill-bar"><div class="skill-fill" data-pct="78"></div></div><span class="pct">78%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== CONTACT =============== -->
+<section id="contact" class="section-pad">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="tag-line"><span class="line"></span>INSERT INTO inbox</div>
+      <h2>Contact</h2>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-info">
+        <p>Have a project to discuss, a freelance opportunity, or need help with a C#/SQL backend? Send a message
+          below and I'll get back to you.</p>
+        <ul class="info-list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v16H4z" opacity="0"/><path d="M22 6 12 13 2 6"/><path d="M2 6h20v12H2z"/></svg><b>your.email@example.com</b></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><b>+94 7X XXX XXXX</b></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><b>Colombo, Sri Lanka</b></li>
+        </ul>
+        <div class="social-row">
+          <a href="#" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg></a>
+          <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+          <a href="#" aria-label="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 6 12 13 2 6"/><path d="M2 6h20v12H2z"/></svg></a>
+        </div>
+      </div>
+
+      <div class="console tilt-card">
+        <div class="card-head"><span>send_message.exe</span><span class="badge">Form</span></div>
+        <div class="console-body">
+          <form id="contactForm">
+            <div class="field"><label for="cf-name">name</label><input id="cf-name" type="text" placeholder="Your name" required></div>
+            <div class="field"><label for="cf-email">email</label><input id="cf-email" type="email" placeholder="you@example.com" required></div>
+            <div class="field"><label for="cf-msg">message</label><textarea id="cf-msg" placeholder="Write your message here..." required></textarea></div>
+            <button type="submit" class="btn btn-primary">Send Message</button>
+          </form>
+          <p class="form-note">// sent via mailto — wire up a backend to connect this to a real inbox.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-inner">
+    <p>© 2026 — Built with C#, SQL &amp; a bit of Three.js</p>
+    <p>Design: blueprint schema aesthetic</p>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ---------------- MOBILE NAV ---------------- */
+const navToggle = document.getElementById('navToggle');
+const navLinks = document.getElementById('navLinks');
+navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navLinks.classList.remove('open')));
+
+/* ---------------- SCROLL SPY ---------------- */
+const sections = document.querySelectorAll('section[id]');
+const navItems = document.querySelectorAll('.nav-links a');
+const spy = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navItems.forEach(a => a.classList.toggle('active', a.dataset.nav === entry.target.id));
+    }
+  });
+}, { rootMargin: '-45% 0px -45% 0px' });
+sections.forEach(s => spy.observe(s));
+
+/* ---------------- SKILL BARS ---------------- */
+const skillFills = document.querySelectorAll('.skill-fill');
+const skillObserver = new IntersectionObserver((entries, obs) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.width = entry.target.dataset.pct + '%';
+      obs.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.4 });
+skillFills.forEach(f => skillObserver.observe(f));
+
+/* ---------------- CONTACT FORM (mailto) ---------------- */
+document.getElementById('contactForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = document.getElementById('cf-name').value;
+  const email = document.getElementById('cf-email').value;
+  const msg = document.getElementById('cf-msg').value;
+  const subject = encodeURIComponent('Portfolio Contact — ' + name);
+  const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${msg}`);
+  window.location.href = `mailto:your.email@example.com?subject=${subject}&body=${body}`;
+});
+
+/* ---------------- 3D TILT ON CARDS ---------------- */
+document.querySelectorAll('.tilt-card').forEach(card => {
+  let raf = null;
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const px = (e.clientX - rect.left) / rect.width - 0.5;
+    const py = (e.clientY - rect.top) / rect.height - 0.5;
+    if (raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => {
+      card.style.transform = `perspective(900px) rotateX(${(-py * 7).toFixed(2)}deg) rotateY(${(px * 9).toFixed(2)}deg) translateY(-4px)`;
+    });
+  });
+  card.addEventListener('mouseleave', () => {
+    if (raf) cancelAnimationFrame(raf);
+    card.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) translateY(0)';
+  });
+});
+
+/* ---------------- THREE.JS CINEMATIC HERO SCENE ---------------- */
+(function initHero(){
+  const canvas = document.getElementById('hero-canvas');
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x0A1628, 0.035);
+
+  const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+  camera.position.set(0, 0, 22);
+
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const GOLD = 0xD4A24C;
+  const CYAN = 0x5FD3C4;
+
+  /* ---- glow sprite texture (soft bloom without post-processing) ---- */
+  function makeGlow(rgb) {
+    const size = 128;
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const ctx = c.getContext('2d');
+    const g = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+    g.addColorStop(0, `rgba(${rgb},0.9)`);
+    g.addColorStop(0.4, `rgba(${rgb},0.35)`);
+    g.addColorStop(1, `rgba(${rgb},0)`);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, size, size);
+    return new THREE.CanvasTexture(c);
+  }
+  const goldGlow = makeGlow('212,162,76');
+  const cyanGlow = makeGlow('95,211,196');
+
+  const group = new THREE.Group();
+  scene.add(group);
+
+  /* ---- background starfield / data dust ---- */
+  const starCount = 340;
+  const starGeo = new THREE.BufferGeometry();
+  const starPos = new Float32Array(starCount * 3);
+  for (let i = 0; i < starCount; i++) {
+    const r = 14 + Math.random() * 26;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    starPos[i*3]   = r * Math.sin(phi) * Math.cos(theta);
+    starPos[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
+    starPos[i*3+2] = r * Math.cos(phi);
+  }
+  starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+  const starMat = new THREE.PointsMaterial({ color: 0x6FA0C7, size: 0.06, transparent: true, opacity: 0.55, sizeAttenuation: true });
+  const stars = new THREE.Points(starGeo, starMat);
+  scene.add(stars);
+
+  /* ---- rotating wireframe core (the "database engine") ---- */
+  const coreGeo = new THREE.IcosahedronGeometry(3, 1);
+  const coreEdges = new THREE.EdgesGeometry(coreGeo);
+  const coreMat = new THREE.LineBasicMaterial({ color: GOLD, transparent: true, opacity: 0.4 });
+  const core = new THREE.LineSegments(coreEdges, coreMat);
+  group.add(core);
+
+  const coreGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: goldGlow, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false }));
+  coreGlow.scale.set(7, 7, 1);
+  group.add(coreGlow);
+
+  /* ---- orbiting table nodes ---- */
+  const NODE_COUNT = 16;
+  const nodes = [];
+
+  for (let i = 0; i < NODE_COUNT; i++) {
+    const radius = 6.8;
+    const phi = Math.acos(-1 + (2 * i) / NODE_COUNT);
+    const theta = Math.sqrt(NODE_COUNT * Math.PI) * phi;
+    const x = radius * Math.cos(theta) * Math.sin(phi);
+    const y = radius * Math.sin(theta) * Math.sin(phi);
+    const z = radius * Math.cos(phi);
+
+    const isGold = i % 3 === 0;
+    const color = isGold ? GOLD : CYAN;
+    const size = 0.26 + Math.random() * 0.14;
+
+    const geo = new THREE.BoxGeometry(size, size, size);
+    const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.9 });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(x, y, z);
+    group.add(mesh);
+
+    const edgeGeo = new THREE.EdgesGeometry(geo);
+    const edgeMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.35 });
+    mesh.add(new THREE.LineSegments(edgeGeo, edgeMat));
+
+    const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: isGold ? goldGlow : cyanGlow, transparent: true, opacity: 0.75, blending: THREE.AdditiveBlending, depthWrite: false }));
+    glow.scale.set(1.6, 1.6, 1);
+    mesh.add(glow);
+
+    nodes.push({ base: new THREE.Vector3(x, y, z), phase: Math.random() * Math.PI * 2, mesh });
+  }
+
+  /* ---- connective lines between neighbouring nodes ---- */
+  const lineMat = new THREE.LineBasicMaterial({ color: 0x3A5A85, transparent: true, opacity: 0.5 });
+  for (let i = 0; i < nodes.length; i++) {
+    let connections = 0;
+    for (let j = i + 1; j < nodes.length; j++) {
+      if (connections >= 2) break;
+      const d = nodes[i].base.distanceTo(nodes[j].base);
+      if (d < 5.6) {
+        const geo = new THREE.BufferGeometry().setFromPoints([nodes[i].base, nodes[j].base]);
+        group.add(new THREE.Line(geo, lineMat));
+        connections++;
+      }
+    }
+  }
+  /* ---- a few relational lines back to the central core ---- */
+  const coreLineMat = new THREE.LineBasicMaterial({ color: 0xD4A24C, transparent: true, opacity: 0.18 });
+  nodes.forEach((n, i) => {
+    if (i % 4 === 0) {
+      const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), n.base]);
+      group.add(new THREE.Line(geo, coreLineMat));
+    }
+  });
+
+  /* ---- mouse parallax (eased) ---- */
+  let mouseX = 0, mouseY = 0, curX = 0, curY = 0;
+  window.addEventListener('mousemove', (e) => {
+    mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+  });
+
+  /* ---- cinematic dolly-in on load ---- */
+  const introStart = performance.now();
+  const introDuration = 2600;
+
+  let t = 0;
+  function animate(now) {
+    requestAnimationFrame(animate);
+    t += 0.006;
+
+    const introT = Math.min(1, (now - introStart) / introDuration);
+    const eased = 1 - Math.pow(1 - introT, 3);
+    camera.position.z = 22 - eased * 7;
+
+    core.rotation.y += 0.0016;
+    core.rotation.x += 0.0009;
+    coreGlow.material.opacity = 0.4 + Math.sin(t * 1.4) * 0.08;
+
+    nodes.forEach((n) => {
+      n.mesh.position.y = n.base.y + Math.sin(t * 1.2 + n.phase) * 0.22;
+      n.mesh.rotation.x += 0.0026;
+      n.mesh.rotation.y += 0.0032;
+    });
+
+    stars.rotation.y += 0.00025;
+
+    curX += (mouseX - curX) * 0.03;
+    curY += (mouseY - curY) * 0.03;
+    group.rotation.y = 0.15 + t * 0.03 + curX * 0.18;
+    group.rotation.x = 0.1 + curY * 0.12;
+    camera.position.x += (curX * 1.6 - camera.position.x) * 0.02;
+    camera.lookAt(0, 0, 0);
+
+    renderer.render(scene, camera);
+  }
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  requestAnimationFrame(animate);
+  requestAnimationFrame(() => canvas.classList.add('ready'));
+})();
+</script>
+</body>
+</html>
