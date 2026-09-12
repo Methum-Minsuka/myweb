@@ -261,6 +261,24 @@
     html{scroll-behavior:auto;}
     #hero-canvas{display:none;}
   }
+
+  /* ---------- SCROLL REVEAL ---------- */
+  .reveal{
+    opacity:0;
+    translate:0 36px;
+    transition:opacity .8s cubic-bezier(.2,.7,.3,1), translate .8s cubic-bezier(.2,.7,.3,1);
+  }
+  .reveal.in-view{
+    opacity:1;
+    translate:0 0;
+  }
+  .reveal-group .reveal:nth-child(1){transition-delay:.05s;}
+  .reveal-group .reveal:nth-child(2){transition-delay:.15s;}
+  .reveal-group .reveal:nth-child(3){transition-delay:.25s;}
+  .reveal-group .reveal:nth-child(4){transition-delay:.35s;}
+  @media (prefers-reduced-motion: reduce){
+    .reveal{opacity:1; translate:0 0; transition:none;}
+  }
 </style>
 </head>
 <body>
@@ -311,15 +329,15 @@
 <!-- =============== PROJECTS =============== -->
 <section id="projects" class="section-pad">
   <div class="wrap">
-    <div class="sec-head">
+    <div class="sec-head reveal">
       <div class="tag-line"><span class="line"></span>SELECT * FROM projects</div>
       <h2>Projects</h2>
       <p>A selection of systems built around C# and SQL Server, each one solving a different real-world problem.</p>
     </div>
 
-    <div class="project-grid">
+    <div class="project-grid reveal-group">
 
-      <div class="project-card tilt-card">
+      <div class="project-card tilt-card reveal">
         <div class="card-head"><span>TBL_inventory_system</span><span class="badge">Desktop App</span></div>
         <div class="card-body">
           <h3>Inventory Management System</h3>
@@ -332,7 +350,7 @@
         </div>
       </div>
 
-      <div class="project-card tilt-card">
+      <div class="project-card tilt-card reveal">
         <div class="card-head"><span>TBL_hospital_system</span><span class="badge">Web App</span></div>
         <div class="card-body">
           <h3>Hospital Management System</h3>
@@ -345,7 +363,7 @@
         </div>
       </div>
 
-      <div class="project-card tilt-card">
+      <div class="project-card tilt-card reveal">
         <div class="card-head"><span>TBL_ecommerce_api</span><span class="badge">Web API</span></div>
         <div class="card-body">
           <h3>E-Commerce Backend API</h3>
@@ -358,7 +376,7 @@
         </div>
       </div>
 
-      <div class="project-card tilt-card">
+      <div class="project-card tilt-card reveal">
         <div class="card-head"><span>TBL_payroll_system</span><span class="badge">Desktop App</span></div>
         <div class="card-body">
           <h3>Employee Payroll &amp; HR System</h3>
@@ -371,7 +389,7 @@
         </div>
       </div>
 
-      <div class="project-card tilt-card">
+      <div class="project-card tilt-card reveal">
         <div class="card-head"><span>TBL_library_system</span><span class="badge">Web App</span></div>
         <div class="card-body">
           <h3>Library Management System</h3>
@@ -384,7 +402,7 @@
         </div>
       </div>
 
-      <div class="project-card tilt-card">
+      <div class="project-card tilt-card reveal">
         <div class="card-head"><span>TBL_banking_system</span><span class="badge">Console App</span></div>
         <div class="card-body">
           <h3>Banking / ATM Simulation System</h3>
@@ -404,13 +422,13 @@
 <!-- =============== ABOUT =============== -->
 <section id="about" class="section-pad">
   <div class="wrap">
-    <div class="sec-head">
+    <div class="sec-head reveal">
       <div class="tag-line"><span class="line"></span>DESCRIBE developer</div>
       <h2>About</h2>
     </div>
 
     <div class="about-grid">
-      <div class="about-copy">
+      <div class="about-copy reveal">
         <p>
           I'm a software developer who builds backend systems on <span class="highlight">C# and SQL Server</span>.
           I studied Computer Science, where I first went deep into object-oriented programming and relational
@@ -433,7 +451,7 @@
         </div>
       </div>
 
-      <div class="schema-card tilt-card">
+      <div class="schema-card tilt-card reveal">
         <div class="card-head"><span>developer_skills.sql</span><span class="badge">Table</span></div>
         <div class="schema-body">
           <div class="schema-comment">-- SELECT * FROM skills ORDER BY proficiency DESC;</div>
@@ -454,13 +472,13 @@
 <!-- =============== CONTACT =============== -->
 <section id="contact" class="section-pad">
   <div class="wrap">
-    <div class="sec-head">
+    <div class="sec-head reveal">
       <div class="tag-line"><span class="line"></span>INSERT INTO inbox</div>
       <h2>Contact</h2>
     </div>
 
     <div class="contact-grid">
-      <div class="contact-info">
+      <div class="contact-info reveal">
         <p>Have a project to discuss, a freelance opportunity, or need help with a C#/SQL backend? Send a message
           below and I'll get back to you.</p>
         <ul class="info-list">
@@ -475,7 +493,7 @@
         </div>
       </div>
 
-      <div class="console tilt-card">
+      <div class="console tilt-card reveal">
         <div class="card-head"><span>send_message.exe</span><span class="badge">Form</span></div>
         <div class="console-body">
           <form id="contactForm">
@@ -492,7 +510,7 @@
 </section>
 
 <footer>
-  <div class="wrap footer-inner">
+  <div class="wrap footer-inner reveal">
     <p>© 2026 — Built with C#, SQL &amp; a bit of Three.js</p>
     <p>Design: blueprint schema aesthetic</p>
   </div>
@@ -517,6 +535,15 @@ const spy = new IntersectionObserver((entries) => {
   });
 }, { rootMargin: '-45% 0px -45% 0px' });
 sections.forEach(s => spy.observe(s));
+
+/* ---------------- SCROLL REVEAL ---------------- */
+const revealEls = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    entry.target.classList.toggle('in-view', entry.isIntersecting);
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+revealEls.forEach(el => revealObserver.observe(el));
 
 /* ---------------- SKILL BARS ---------------- */
 const skillFills = document.querySelectorAll('.skill-fill');
