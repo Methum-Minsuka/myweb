@@ -497,12 +497,15 @@
         <div class="card-head"><span>send_message.exe</span><span class="badge">Form</span></div>
         <div class="console-body">
           <form id="contactForm">
-            <div class="field"><label for="cf-name">name</label><input id="cf-name" type="text" placeholder="Your name" required></div>
-            <div class="field"><label for="cf-email">email</label><input id="cf-email" type="email" placeholder="you@example.com" required></div>
-            <div class="field"><label for="cf-msg">message</label><textarea id="cf-msg" placeholder="Write your message here..." required></textarea></div>
-            <button type="submit" class="btn btn-primary">Send Message</button>
+            <input type="hidden" name="access_key" value="e0676c3c-b207-460c-807c-a5192282cfb6">
+            <input type="hidden" name="subject" value="New message from portfolio site">
+            <input type="text" name="botcheck" style="display:none" tabindex="-1" autocomplete="off">
+            <div class="field"><label for="cf-name">name</label><input id="cf-name" name="name" type="text" placeholder="Your name" required></div>
+            <div class="field"><label for="cf-email">email</label><input id="cf-email" name="email" type="email" placeholder="you@example.com" required></div>
+            <div class="field"><label for="cf-msg">message</label><textarea id="cf-msg" name="message" placeholder="Write your message here..." required></textarea></div>
+            <button type="submit" class="btn btn-primary" id="cf-submit">Send Message</button>
           </form>
-          <p class="form-note">// sent via mailto — wire up a backend to connect this to a real inbox.</p>
+          <p class="form-note" id="cf-status">// message delivered securely — no inbox address exposed in this page.</p>
         </div>
       </div>
     </div>
@@ -557,15 +560,42 @@ const skillObserver = new IntersectionObserver((entries, obs) => {
 }, { threshold: 0.4 });
 skillFills.forEach(f => skillObserver.observe(f));
 
-/* ---------------- CONTACT FORM (mailto) ---------------- */
-document.getElementById('contactForm').addEventListener('submit', (e) => {
+/* ---------------- CONTACT FORM (Web3Forms — no inbox address exposed client-side) ---------------- */
+const contactForm = document.getElementById('contactForm');
+const cfSubmit = document.getElementById('cf-submit');
+const cfStatus = document.getElementById('cf-status');
+
+contactForm.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const name = document.getElementById('cf-name').value;
-  const email = document.getElementById('cf-email').value;
-  const msg = document.getElementById('cf-msg').value;
-  const subject = encodeURIComponent('Portfolio Contact — ' + name);
-  const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${msg}`);
-  window.location.href = `mailto:your.email@example.com?subject=${subject}&body=${body}`;
+
+  cfSubmit.disabled = true;
+  cfSubmit.textContent = 'Sending...';
+  cfStatus.textContent = '// transmitting...';
+  cfStatus.style.color = '';
+
+  try {
+    const formData = new FormData(contactForm);
+    const response = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+      body: formData
+    });
+    const result = await response.json();
+
+    if (result.success) {
+      cfStatus.textContent = '// message sent — I\'ll get back to you soon.';
+      cfStatus.style.color = 'var(--cyan)';
+      contactForm.reset();
+    } else {
+      throw new Error(result.message || 'Submission failed');
+    }
+  } catch (err) {
+    cfStatus.textContent = '// something went wrong — please try again shortly.';
+    cfStatus.style.color = '#e07a7a';
+  } finally {
+    cfSubmit.disabled = false;
+    cfSubmit.textContent = 'Send Message';
+  }
 });
 
 /* ---------------- 3D TILT ON CARDS ---------------- */
